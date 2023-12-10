@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"os"
 	"reflect"
 	"testing"
 
@@ -126,6 +128,114 @@ func TestConvertObjectJSON(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := ConvertObjectJSON(tt.args.data); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ConvertObjectJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestConvertMapJSON(t *testing.T) {
+	type args struct {
+		data string
+	}
+	tests := []struct {
+		name string
+		args args
+		want map[string]interface{}
+	}{
+		{
+			name: "success convert map JOSN",
+			args: args{
+				data: string(`{"first_name":"Santekno","middle_name":"Ihsan","last_name":"Arif"}`),
+			},
+			want: map[string]interface{}{
+				"first_name":  "Santekno",
+				"middle_name": "Ihsan",
+				"last_name":   "Arif",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ConvertMapJSON(tt.args.data); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ConvertMapJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestDecodeStreamReaderJSON(t *testing.T) {
+	type args struct {
+		file string
+	}
+	tests := []struct {
+		name string
+		args args
+		want Customer
+	}{
+		{
+			name: "success convert stream reader",
+			args: args{
+				file: "sample.json",
+			},
+			want: Customer{
+				FirstName:  "Santekno",
+				MiddleName: "Ihsan",
+				LastName:   "Arif",
+				Hobbies:    []string{"badminton", "renang", "coding"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := DecodeStreamReaderJSON(tt.args.file); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DecodeStreamReaderJSON() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestEncoderStreamWriterJSON(t *testing.T) {
+	type args struct {
+		cust Customer
+	}
+	tests := []struct {
+		name string
+		args args
+		want Customer
+	}{
+		{
+			name: "success encode strem reader",
+			args: args{
+				cust: Customer{
+					FirstName:  "Santekno",
+					MiddleName: "Ihsan",
+					LastName:   "Arif",
+					Hobbies:    []string{"badminton", "renang", "coding"},
+				},
+			},
+			want: Customer{
+				FirstName:  "Santekno",
+				MiddleName: "Ihsan",
+				LastName:   "Arif",
+				Hobbies:    []string{"badminton", "renang", "coding"},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			EncoderStreaWriterJSON(tt.args.cust)
+
+			reader, _ := os.Open("sample_output.json")
+			decoder := json.NewDecoder(reader)
+
+			var cust Customer
+			err := decoder.Decode(&cust)
+			if err != nil {
+				panic(err)
+			}
+
+			if !reflect.DeepEqual(cust, tt.want) {
+				t.Errorf("EncoderStreaWriterJSON() = %v, want %v", cust, tt.want)
 			}
 		})
 	}
