@@ -1,4 +1,4 @@
-module github.com/santekno/belajar-golang-json
+module github.com/santekno/learn-golang-json
 
 go 1.21.1
 
